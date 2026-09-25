@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diffusion Meta-Prompting (DMP) - NeurIPS 2026</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1 class="title">Diffusion Meta-Prompting and Steering for Generalizable Foundation Model Adaptation</h1>
+
+            <div class="authors">
+                <span>Deepak Sridhar<sup>1</sup></span>
+                <span>Yi Li<sup>2</sup></span>
+                <span>Kartikeya Bhardwaj<sup>2</sup></span>
+                <span>Shuangjun Liu<sup>2</sup></span>
+                <span>Taotao Jing<sup>2</sup></span>
+                <span>Yuan Li<sup>2</sup></span>
+                <span>Shuai Zhang<sup>2</sup></span>
+                <span>Jiancheng Lyu<sup>2</sup></span>
+                <span>Dashan Gao<sup>2</sup></span>
+                <span>Nuno Vasconcelos<sup>1</sup></span>
+            </div>
+
+            <div class="affiliations">
+                <p><sup>1</sup>University of California, San Diego &nbsp;&nbsp; <sup>2</sup>Qualcomm Technologies</p>
+            </div>
+
+            <div class="conference">
+                <p><strong>NeurIPS 2026</strong></p>
+            </div>
+
+            <div class="links">
+                <a href="DMP_NeurIPS_2026.pdf" class="btn"><i class="fas fa-file-pdf"></i> Paper</a>
+                <a href="#code" class="btn"><i class="fab fa-github"></i> Code (Coming Soon)</a>
+                <a href="#citation" class="btn"><i class="fas fa-quote-right"></i> Citation</a>
+            </div>
+        </header>
+
+        <!-- Teaser Figure -->
+        <section class="teaser">
+            <img src="images/teaser.png" alt="DMP Overview" class="teaser-img">
+            <p class="caption"><strong>Figure 1:</strong> DMP versus existing approaches. DMP provides a natural language interface for foundation model adaptation, eliminating large prompt repositories while offering better generalization and composition with minimal runtime overhead.</p>
+        </section>
+
+        <!-- Abstract -->
+        <section id="abstract">
+            <h2>Abstract</h2>
+            <p>
+                Prompt learning is a popular parameter-efficient method for adapting foundation models, but learned prompts are typically task-specific and fail to generalize to new classes, domains, or compositions of tasks. In this paper, we introduce a <strong>Diffusion Meta-Prompt (DMP)</strong> model, a framework that models the distribution of learned prompts using diffusion models. DMP is trained only on a repository of previously learned prompts to synthesize new prompts conditioned on natural language task descriptions, without access to the task data.
+            </p>
+            <p>
+                To improve sampling stability, we introduce a test-time steering strategy for DMP, which uses the best training-selected prompt in the repository as a latent anchor during diffusion sampling, without retraining the DMP or accessing test classes. DMP improves generalization across classification, retrieval and text-to-image generation tasks, supports concept composition and negative prompting without explicit training.
+            </p>
+            <p>
+                <strong>Key Results:</strong> DMP reduces storage and inference costs by over 90% compared to prompt retrieval methods. For composite classification, DMP achieves up to 2.0% average gain over prior meta-learning methods across 55 pairs of datasets with gains as high as 8.5% on specific pairs. DMP also enhances cross-task generalization with ~2-9% improvement for hierarchical classification tasks.
+            </p>
+        </section>
+
+        <!-- Key Contributions -->
+        <section id="contributions">
+            <h2>Key Contributions</h2>
+            <ul>
+                <li><strong>Diffusion Meta-Prompting Framework:</strong> A meta-learning approach that treats learned prompts as samples from a shared distribution, learned with diffusion models. Unlike existing methods, DMP is trained once on a prompt repository and synthesizes new task-specific prompts without access to task data or losses.</li>
+
+                <li><strong>Test-Time Steering:</strong> A novel steering mechanism that produces prompts with better generalization (up to 2.0%) without additional training, using training-selected anchors to guide diffusion sampling.</li>
+
+                <li><strong>Theoretical Guarantee:</strong> We provide a bound on the expected task loss of prompts sampled from a DMP in terms of the empirical loss of the prompt repository and the denoising error.</li>
+
+                <li><strong>State-of-the-Art Results:</strong> Extensive experiments show DMP improves generalization in challenging regimes including cross-task and composite classification (up to 2.0% gains), while reducing storage and inference costs by over 90%.</li>
+
+                <li><strong>Representation-Agnostic:</strong> DMP applies beyond prompts to foundation-model representations, demonstrated through sparse multi-view retrieval experiments (+3.44 mAP improvement).</li>
+            </ul>
+        </section>
+
+        <!-- Method Overview -->
+        <section id="method">
+            <h2>Method</h2>
+            <div class="method-content">
+                <img src="images/method.png" alt="DMP Framework" class="method-img">
+                <p class="caption"><strong>Figure 2:</strong> DMP framework for Text-to-Prompt synthesis (left) and Prompt Variation synthesis (right).</p>
+
+                <h3>Diffusion Meta-Prompting</h3>
+                <p>
+                    DMP models the distribution of learned prompts using diffusion models. Given a repository of prompts learned via standard prompt learning techniques, DMP trains a conditional generator p<sub>θ</sub>(x | y) that synthesizes new prompts conditioned on natural language task descriptions.
+                </p>
+
+                <h3>Test-Time Steering</h3>
+                <p>
+                    To improve sampling stability, we introduce a steering mechanism that biases diffusion sampling toward high-performing prompts. For each dataset, we select the prompt with highest training accuracy as an anchor. During sampling, the predicted clean prompt is interpolated with this anchor at each denoising step, stabilizing generation without requiring test data access.
+                </p>
+
+                <h3>Concept Composition</h3>
+                <p>
+                    By framing diffusion models as Energy Based Models, DMP enables task composition through classifier-free guidance. Multiple concepts can be combined by averaging noise predictions, allowing for flexible prompt combinations at inference time.
+                </p>
+            </div>
+        </section>
+
+        <!-- Results -->
+        <section id="results">
+            <h2>Results</h2>
+
+            <h3>Composite Classification</h3>
+            <div class="results-grid">
+                <div class="result-item">
+                    <img src="images/composite_results.png" alt="Composite Classification Results">
+                    <p class="caption">DMP achieves +4.4% average gain over CoOp across 55 dataset pairs, with improvements of +4.3% on base classes and +5.7% on novel classes.</p>
+                </div>
+            </div>
+
+            <h3>Hierarchical Classification</h3>
+            <div class="results-grid">
+                <div class="result-item">
+                    <img src="images/hierarchical_results.png" alt="Hierarchical Classification">
+                    <p class="caption">DMP prompts generalize better than BPL with ~2-9% accuracy gains for cross-task generalization on taxonomic classification.</p>
+                </div>
+            </div>
+
+            <h3>Variation Synthesis</h3>
+            <div class="results-grid">
+                <div class="result-item">
+                    <img src="images/variation_results.png" alt="Variation Synthesis">
+                    <p class="caption">DMPVariation demonstrates superior robustness and generalization compared to Textual Inversion, effectively adapting to diverse contexts while preserving subject identity.</p>
+                </div>
+            </div>
+
+            <h3>Efficiency Comparison</h3>
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th>Memory (GB) ↓</th>
+                        <th>Time (s) ↓</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Stylus (Retrieval)</td>
+                        <td>1.30</td>
+                        <td>12.1</td>
+                    </tr>
+                    <tr class="highlight">
+                        <td><strong>DMP (Ours)</strong></td>
+                        <td><strong>0.12</strong></td>
+                        <td><strong>1.0</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Improvement</td>
+                        <td>91% ↓</td>
+                        <td>92% ↓</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Qualitative Results -->
+        <section id="qualitative">
+            <h2>Qualitative Results</h2>
+
+            <h3>Concept Composition</h3>
+            <div class="gallery">
+                <img src="images/composition.png" alt="Concept Composition">
+                <p class="caption">DMP enables seamless composition of multiple concepts (e.g., identity + attributes) without explicit training.</p>
+            </div>
+
+            <h3>Negative Prompting</h3>
+            <div class="gallery">
+                <img src="images/negative_prompting.png" alt="Negative Prompting">
+                <p class="caption">DMP supports negative prompting, generating images with attributes opposing specified concepts.</p>
+            </div>
+
+            <h3>Cross-Context Generalization</h3>
+            <div class="gallery">
+                <img src="images/generalization.png" alt="Generalization">
+                <p class="caption">DMPVariation prompts generalize to diverse contexts while Textual Inversion tends to overfit.</p>
+            </div>
+        </section>
+
+        <!-- Comparison Table -->
+        <section id="comparison">
+            <h2>Comparison with Prior Work</h2>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th>Task Data/Loss Free</th>
+                        <th>Supports Multiple Tasks</th>
+                        <th>Learns across Tasks</th>
+                        <th>Core Idea</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Bayesian Prompt Learning (BPL)</td>
+                        <td>✗</td>
+                        <td>✗</td>
+                        <td>✗</td>
+                        <td>Bayesian uncertainty modeling</td>
+                    </tr>
+                    <tr>
+                        <td>ProMetaR</td>
+                        <td>✗</td>
+                        <td>✓</td>
+                        <td>✓</td>
+                        <td>Meta-regularization; requires training data</td>
+                    </tr>
+                    <tr>
+                        <td>GRAM</td>
+                        <td>✗</td>
+                        <td>✓</td>
+                        <td>✗</td>
+                        <td>Meta-learned prompt init + gradient regulator</td>
+                    </tr>
+                    <tr>
+                        <td>PRewrite</td>
+                        <td>✗</td>
+                        <td>✓</td>
+                        <td>✗</td>
+                        <td>LLM-based prompt rewriter with RL</td>
+                    </tr>
+                    <tr class="highlight">
+                        <td><strong>DMP (Ours)</strong></td>
+                        <td><strong>✓</strong></td>
+                        <td><strong>✓</strong></td>
+                        <td><strong>✓</strong></td>
+                        <td><strong>Learns prompt distribution; one-shot sampling, composition, negative prompts</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Citation -->
+        <section id="citation">
+            <h2>Citation</h2>
+            <pre><code>@inproceedings{sridhar2026dmp,
+  title={Diffusion Meta-Prompting and Steering for Generalizable Foundation Model Adaptation},
+  author={Sridhar, Deepak and Li, Yi and Bhardwaj, Kartikeya and Liu, Shuangjun and Jing, Taotao and Li, Yuan and Zhang, Shuai and Lyu, Jiancheng and Gao, Dashan and Vasconcelos, Nuno},
+  booktitle={Advances in Neural Information Processing Systems (NeurIPS)},
+  year={2026}
+}</code></pre>
+        </section>
+
+        <!-- Code Section -->
+        <section id="code">
+            <h2>Code & Models</h2>
+            <p>Code and trained models will be released publicly. Stay tuned!</p>
+            <div class="code-placeholder">
+                <i class="fab fa-github" style="font-size: 48px; color: #888;"></i>
+                <p>Coming Soon</p>
+            </div>
+        </section>
+
+        <!-- Acknowledgements -->
+        <section id="acknowledgements">
+            <h2>Acknowledgements</h2>
+            <p>
+                This work was supported by Qualcomm Technologies. We thank the NeurIPS reviewers for their valuable feedback.
+            </p>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <p>&copy; 2026 Deepak Sridhar. All rights reserved.</p>
+            <p>Contact: desridha@ucsd.edu</p>
+        </footer>
+    </div>
+</body>
+</html>
